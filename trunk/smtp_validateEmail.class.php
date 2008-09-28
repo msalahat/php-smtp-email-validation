@@ -33,11 +33,11 @@ class SMTP_validateEmail {
   */
  var $port = 25;
  /**
-  * Maximum Connection Time to an MTA 
+  * Maximum Connection Time to wait for connection establishment per MTA 
   */
  var $max_conn_time = 30;
  /**
-  * Maximum time to read from socket
+  * Maximum time to read from socket before giving up
   */
  var $max_read_time = 5;
  
@@ -127,6 +127,9 @@ class SMTP_validateEmail {
   foreach($this->domains as $domain=>$users) {
   	
 	 $mxs = array();
+	 
+	 // current domain being queried
+	 $this->domain = $domain;
   
 	  // retrieve SMTP Server via MX query on domain
 	  list($hosts, $mxweights) = $this->queryMX($domain);
@@ -138,11 +141,11 @@ class SMTP_validateEmail {
 	  asort($mxs);
 	
 	  // last fallback is the original domain
-	  array_push($mxs, $this->domain);
+	  $mxs[$this->domain] = 0;
 	  
 	  $this->debug(print_r($mxs, 1));
 	  
-	  $timeout = $this->max_conn_time/count($hosts);
+	  $timeout = $this->max_conn_time;
 	   
 	  // try each host
 	  while(list($host) = each($mxs)) {
@@ -196,6 +199,9 @@ class SMTP_validateEmail {
 		   }
 	   
 	   }
+	   
+	   // reset before quit
+	   $this->send("RSET");
 	   
 	   // quit
 	   $this->send("quit");
@@ -258,7 +264,7 @@ class SMTP_validateEmail {
 
  function debug($str) {
   if ($this->debug) {
-   echo htmlentities($str);
+   echo '<pre>'.htmlentities($str).'</pre>';
   }
  }
 
