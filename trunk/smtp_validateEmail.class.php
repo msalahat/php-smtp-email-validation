@@ -134,7 +134,7 @@ class SMTP_validateEmail {
 	  // retrieve SMTP Server via MX query on domain
 	  list($hosts, $mxweights) = $this->queryMX($domain);
 
-	  // retrieve MX priorities
+
 	  for($n=0; $n < count($hosts); $n++){
 	   $mxs[$hosts[$n]] = $mxweights[$n];
 	  }
@@ -208,6 +208,8 @@ class SMTP_validateEmail {
 	   // close socket
 	   fclose($this->sock);
 	  
+	  } else {
+	  	$this->debug('Error: Could not connect to a valid mail server for this email address: ' . $user.'@'.$domain);
 	  }
  	}
 	return $results;
@@ -226,7 +228,7 @@ class SMTP_validateEmail {
  }
  
  /**
-  * Query DNS server for MX entries
+  * Query DNS server for MX entriesg
   * @return 
   */
  function queryMX($domain) {
